@@ -105,27 +105,27 @@ app = FastAPI(
 #     allow_methods=["*"],
 #     allow_headers=["*"],
 # )
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["*"],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
-
-from fastapi.middleware.cors import CORSMiddleware
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",       # your local dev frontend
-        "http://localhost:5176",       # another dev port
-        "https://agriadvisor.vercel.app",  # your Vercel live site
-    ],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# from fastapi.middleware.cors import CORSMiddleware
+
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=[
+#         "http://localhost:5173",       # your local dev frontend
+#         "http://localhost:5176",       # another dev port
+#         "https://agriadvisor.vercel.app",  # your Vercel live site
+#     ],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 # --- MongoDB setup ---
 # MONGO_URI = os.environ.get("MONGO_URI", "mongodb://127.0.0.1:27017")
