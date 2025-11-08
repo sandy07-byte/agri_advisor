@@ -105,13 +105,28 @@ app = FastAPI(
 #     allow_methods=["*"],
 #     allow_headers=["*"],
 # )
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
+from fastapi.middleware.cors import CORSMiddleware
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:5173",        # local dev
+        "http://localhost:5176",        # if you use another dev port
+        "https://agri-advisor-git-main-sandeeps-projects-d25a4473.vercel.app",  # your current Vercel preview URL
+        "https://agriadvisor.vercel.app",  # your main Vercel domain if you have one
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # from fastapi.middleware.cors import CORSMiddleware
 
