@@ -117,7 +117,9 @@ app.add_middleware(
 # MONGO_DB = os.environ.get("MONGO_DB", "fertilizer_project")
 MONGO_URI = os.environ.get(
     "MONGO_URI",
-    "mongodb+srv://agriadviser:sandy%400711@cluster1.19u4pk4.mongodb.net/?appName=Cluster1"
+    # "mongodb+srv://agriadviser:sandy%400711@cluster1.19u4pk4.mongodb.net/?appName=Cluster1"
+    "mongodb+srv://agriadviser:sandy%400711@cluster1.19u4pk4.mongodb.net/fertilizer_project?retryWrites=true&w=majority&tls=true&tlsAllowInvalidCertificates=true"
+
 )
 MONGO_DB = os.environ.get("MONGO_DB", "fertilizer_project")
 
