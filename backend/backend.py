@@ -572,21 +572,27 @@ def list_articles():
 #     d = dict(doc)
 #     d["id"] = str(d.pop("_id", ""))
 #     return d
-@app.get("/api/articles/{article_id}")
-def get_article(article_id: str):
-    """
-    Fetch a single article by its 'id' or '_id' (for backward compatibility).
-    """
-    article = col_articles.find_one(
-        {"$or": [{"id": article_id}, {"_id": article_id}]}
-    )
-
-    if not article:
+@app.get("/api/articles/{id}")
+def get_article(id: str):
+    if col_articles is None:
         raise HTTPException(status_code=404, detail="Not found")
 
-    article["_id"] = str(article["_id"])
-    return article
+    # Try both ObjectId and string-based _id
+    doc = None
+    try:
+        # Try ObjectId first
+        oid = ObjectId(id)
+        doc = col_articles.find_one({"_id": oid})
+    except Exception:
+        # Then try string-based _id or id fields
+        doc = col_articles.find_one({"_id": id}) or col_articles.find_one({"id": id})
 
+    if not doc:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    d = dict(doc)
+    d["id"] = str(d.pop("_id", ""))
+    return d
 
 # Optional: create an article (useful for testing via POST)
 @app.post("/api/articles")
