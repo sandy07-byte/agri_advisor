@@ -1,0 +1,42 @@
+[
+  {
+    "_id": "t001",
+    "title": "Precision Farming and Smart Agriculture",
+    "image": "/articles/techniques_imgs/1st.img",
+    "excerpt": "Integrating IoT, sensors, drones, and AI to optimize resource use and improve productivity.",
+    "content": "Precision farming, also known as smart agriculture, represents a data-driven approach to crop production where farmers manage variations in the field precisely rather than uniformly. It combines GPS-based field mapping, soil and weather sensors, drones, and AI-powered analytics to gather information on soil moisture, nutrient status, crop stress, and pest presence. This information helps determine exactly when, where, and how much fertilizer, irrigation, or pesticide should be applied.\n\nKey components include soil testing sensors that measure nutrient levels in real time, variable-rate technology (VRT) that adjusts fertilizer dosage automatically, and unmanned aerial vehicles (UAVs) that provide high-resolution imagery for crop monitoring. Machine learning models analyze this data to identify yield zones and predict deficiencies before they impact productivity.\n\nIn India, precision farming is gaining attention through government programs such as the Digital Agriculture Mission and private startups offering low-cost sensor kits. Studies from Tamil Nadu Agricultural University and ICAR show that variable fertilizer application can increase nitrogen use efficiency by 25-30% while lowering input costs. Despite the promise, barriers such as high initial investment, limited technical knowledge, and connectivity gaps persist. However, mobile-based advisory apps and cloud-linked dashboards are making smart farming more accessible to smallholders.\n\nThe future of precision farming lies in integrating AI and satellite data to create real-time fertilizer recommendation systems, where algorithms provide site-specific guidance directly to farmers’ phones. These systems ensure maximum resource efficiency, reduce waste, and support environmentally sustainable agriculture.",
+    "author": "AgriAdvisor",
+    "publishedAt": "2025-10-31T12:00:00.000+00:00",
+    "tags": ["Smart Farming", "IoT", "AI in Agriculture"]
+  },
+  {
+    "_id": "t002",
+    "title": "Sustainable and Regenerative Agriculture",
+    "image": "/articles/techniques_imgs/2img.jpg",
+    "excerpt": "Restoring soil health and ecosystem balance through regenerative practices that enhance fertility and resilience.",
+    "content": "Sustainable and regenerative agriculture aims to reverse soil degradation and restore ecological balance by mimicking natural processes. It focuses on soil biology, biodiversity, and carbon sequestration to create long-term productivity while reducing dependence on synthetic inputs.\n\nCore practices include minimal tillage, diverse crop rotations, integration of livestock, and use of organic matter such as compost or green manure. Cover crops like cowpea, mustard, and sunhemp protect soil from erosion and add biomass that improves organic carbon. Microbial inoculants and biofertilizers such as Azotobacter and Rhizobium further enhance nutrient cycling and reduce chemical fertilizer dependency.\n\nA crucial aspect of regenerative farming is soil health monitoring. Farmers evaluate soil organic carbon, pH, cation exchange capacity, and microbial activity to decide input levels. By maintaining balanced soil ecology, regenerative farms often observe steady yield improvements after an initial adjustment period. Studies by the Indian Council of Agricultural Research (ICAR) demonstrate 20-40% higher soil organic carbon and reduced irrigation needs under regenerative management.\n\nThis system directly connects to fertilizer recommendation frameworks. By integrating regenerative indicators—such as organic matter levels and microbial health—AI-based systems can fine-tune fertilizer doses. The outcome is lower greenhouse gas emissions, improved crop resilience, and enhanced profitability. Regenerative farming thus serves as a practical path toward climate-smart agriculture in India.",
+    "author": "AgriAdvisor",
+    "publishedAt": "2025-10-31T12:00:00.000+00:00",
+    "tags": ["Regenerative Agriculture", "Soil Health", "Sustainability"]
+  },
+  {
+    "_id": "t003",
+    "title": "Integrated Nutrient Management (INM)",
+    "image": "/articles/techniques_imgs/3img.webp",
+    "excerpt": "Combining organic, inorganic, and biological nutrient sources for balanced soil fertility and productivity.",
+    "content": "Integrated Nutrient Management (INM) is a holistic approach to fertilizer use that balances chemical fertilizers with organic and biological nutrient sources to maintain long-term soil fertility. The key principle is the ‘4Rs’: right source, right dose, right time, and right place.\n\nINM encourages using crop residues, compost, green manure, and biofertilizers along with chemical fertilizers to meet crop nutrient demands efficiently. For example, partial substitution of nitrogen fertilizer with farmyard manure (FYM) and Azospirillum biofertilizer enhances nitrogen use efficiency while improving soil structure. Studies from long-term fertilizer experiments (LTFEs) in Vertisols and Inceptisols have shown that integrated nutrient treatments maintain higher soil organic carbon and available nitrogen compared to exclusive chemical fertilizer use.\n\nAnother important component is soil testing and nutrient budgeting. Farmers collect soil samples to determine nutrient deficiencies, enabling site-specific fertilizer recommendations. Tools such as Soil Health Cards and mobile apps like Bhuvan and Krishi Kalyan help farmers interpret soil data.\n\nINM is critical for India’s small and medium farmers because it reduces input costs and improves soil sustainability. By linking INM principles with digital platforms, fertilizer recommendation systems can calculate customized nutrient packages considering both organic inputs and prior fertilizer history. The integration of AI models with INM ensures productivity while preserving soil ecosystem services.",
+    "author": "AgriAdvisor",
+    "publishedAt": "2025-10-31T12:00:00.000+00:00",
+    "tags": ["Soil Fertility", "Nutrient Management", "Organic Farming"]
+  },
+  {
+    "_id": "t004",
+    "title": "Hydroponics and Controlled Environment Agriculture (CEA)",
+    "image": "/articles/techniques_imgs/4img.webp",
+    "excerpt": "Soilless cultivation systems enabling high-efficiency, year-round crop production with minimal resources.",
+    "content": "Hydroponics is a soilless farming method in which plants are grown in water enriched with essential nutrients. It is part of Controlled Environment Agriculture (CEA), which manages temperature, humidity, light, and CO₂ to optimize plant growth. Nutrient solutions are precisely formulated and circulated through systems like NFT (Nutrient Film Technique), DWC (Deep Water Culture), or drip irrigation channels.\n\nHydroponics offers remarkable efficiency: up to 90% water savings, faster growth rates, and pesticide-free production. The closed-loop design minimizes nutrient loss and allows continuous monitoring through sensors. Farmers can adjust pH and EC (electrical conductivity) levels digitally, enabling AI systems to recommend nutrient mixes in real time.\n\nIn India, hydroponics is being adopted in peri-urban areas such as Pune, Bengaluru, and Delhi for high-value crops like lettuce, spinach, strawberries, and herbs. Startups such as Barton Breeze and UrbanKisaan are providing plug-and-play hydroponic setups that can connect to mobile dashboards.\n\nFor fertilizer recommendation systems, hydroponics represents the next frontier. Instead of soil data, algorithms analyze nutrient solution parameters, plant growth stages, and environmental metrics. The integration of IoT and AI ensures precise dosage adjustments, minimizes waste, and guarantees consistent quality. Though initial costs are high, the long-term benefits—consistent yields, year-round supply, and reduced resource use—make hydroponics one of the most promising future farming techniques.",
+    "author": "AgriAdvisor",
+    "publishedAt": "2025-10-31T12:00:00.000+00:00",
+    "tags": ["Hydroponics", "CEA", "Urban Farming"]
+  }
+]
