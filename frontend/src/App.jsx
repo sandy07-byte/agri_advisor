@@ -3,7 +3,7 @@ import { Link, NavLink, Route, Routes, useNavigate, useParams, useLocation, Navi
 import './App.css'
 import FertilizerForm from './components/FertilizerForm'
 
-const API = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
+const API = import.meta.env.VITE_API_URL;
 const AuthContext = createContext(null)
 
 function mapArticle(raw) {
