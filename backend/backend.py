@@ -120,6 +120,7 @@ app.add_middleware(
 
         # Vercel frontend (preview + production)
         "https://agri-advisor-git-main-sandeeps-projects-d25a4473.vercel.app",
+        "https://agri-advisor-aqinf1dq3-sandeeps-projects-d25a4473.vercel.app",
         "https://agriadvisor.vercel.app",
 
         # Render backend URL must be allowed
