@@ -4,7 +4,7 @@
 *{box-sizing:border-box}
 html,body{height:100%}
 html{scroll-behavior:smooth}
-body{font-family: Inter, Poppins, system-ui, Arial, sans-serif; margin:0; color:var(--text); background:linear-gradient(180deg, #e8f5e9, #f1f8e9)}
+body{font-family: Inter, Poppins, system-ui, Arial, sans-serif; margin:0; color:var(--text); background:linear-gradient(180deg, #e8f5e9, #f1f8e9); overflow-x: hidden}
 img{max-width:100%; display:block}
 a{color:inherit; text-decoration:none}
 
@@ -53,7 +53,7 @@ strong{font-weight:700; color:#0f172a}
 .hero .hero-content p{color:rgba(255,255,255,.92)}
 
 /* Features strip */
-.features-strip{display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; max-width:1100px; margin:14px auto 16px; padding:0 12px}
+.features-strip{display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; max-width:1100px; margin:14px auto 16px; padding:0 12px; width:100%; box-sizing:border-box}
 .feature{display:flex; align-items:center; gap:10px; background:#f0fff4; border:1px solid #d9f4e6; border-radius:12px; padding:10px}
 .feature .icon{font-size:22px}
 .feature .title{font-weight:700; color:#065f46}
@@ -61,7 +61,7 @@ strong{font-weight:700; color:#0f172a}
 @media (max-width: 800px){.features-strip{grid-template-columns:1fr}}
 
 /* Soft animated gradient waves */
-.animated-bg{position:absolute; inset:-20% -10%; background:radial-gradient(1200px 600px at 10% 10%, rgba(16,185,129,.15), transparent 60%), radial-gradient(1000px 500px at 90% 20%, rgba(72,187,120,.12), transparent 60%), radial-gradient(800px 400px at 50% 100%, rgba(5,150,105,.15), transparent 60%); filter:blur(30px); opacity:.8}
+.animated-bg{position:absolute; inset:0; background:radial-gradient(1200px 600px at 10% 10%, rgba(16,185,129,.15), transparent 60%), radial-gradient(1000px 500px at 90% 20%, rgba(72,187,120,.12), transparent 60%), radial-gradient(800px 400px at 50% 100%, rgba(5,150,105,.15), transparent 60%); filter:blur(30px); opacity:.8; overflow:hidden}
 @media (prefers-reduced-motion: no-preference){
   .animated-bg{animation:slow-pan 18s ease-in-out infinite alternate}
   @keyframes slow-pan{0%{transform:translateX(0)} 100%{transform:translateX(-2%)}}
@@ -119,7 +119,7 @@ strong{font-weight:700; color:#0f172a}
 
 /* Containers */
 /* .page{padding:px} */
-.container{max-width:1000px; margin:0 auto; padding:16px}
+.container{max-width:1000px; margin:0 auto; padding:16px; width:100%; box-sizing:border-box}
 
 /* Logged-in landing with centered form */
 /* Full-page background container */
@@ -182,9 +182,18 @@ strong{font-weight:700; color:#0f172a}
 .nav-welcome{font-weight:800; color:var(--green); text-transform:lowercase; letter-spacing:.2px}
 @media (max-width: 640px){
   /* Keep Home button from overlapping center by reserving right space */
-  .navbar{padding-right:72px}
+  .navbar{padding-right:72px; width:100%; box-sizing:border-box}
   /* Keep the form centered but allow more background around it */
   .form-center{min-height:56vh; display:grid; place-items:center; padding:10px}
+  /* Ensure content fits mobile viewport */
+  .container,
+  .features-strip,
+  .cta-row{
+    padding-left:12px;
+    padding-right:12px;
+    width:100%;
+    box-sizing:border-box;
+  }
   /* Make the form full-width and readable on phones */
   .form-card{padding:16px; border-radius:12px; width:100%; max-width:560px}
   .features-inline{display:none}
@@ -236,7 +245,7 @@ strong{font-weight:700; color:#0f172a}
 }
 
 /* CTA Row (two-column layout) */
-.cta-row{display:grid; grid-template-columns:2fr 1fr; column-gap:75px; row-gap:16px; align-items:start; max-width:1100px; margin:0 auto 24px; padding:0 8px}
+.cta-row{display:grid; grid-template-columns:2fr 1fr; column-gap:75px; row-gap:16px; align-items:start; max-width:1100px; margin:0 auto 24px; padding:0 8px; width:100%; box-sizing:border-box}
 .cta-row .cta-card{max-width:none; margin:0}
 .side-card h3{margin:6px 0}
 @media (max-width: 900px){
