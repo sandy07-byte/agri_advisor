@@ -112,41 +112,60 @@ app = FastAPI(
 #     allow_methods=["*"],
 #     allow_headers=["*"],
 # )
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:5176",
-
-        # Vercel frontend (preview + production)
-        "https://agri-advisor-git-main-sandeeps-projects-d25a4473.vercel.app",
-        "https://agri-advisor-aqinf1dq3-sandeeps-projects-d25a4473.vercel.app",
-        "https://agriadvisor.vercel.app",
-
-        # Render backend URL must be allowed
-        "https://agri-advisor-7d7c.onrender.com",
-
-        "*",   # keep fallback
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-# from fastapi.middleware.cors import CORSMiddleware
-
 # app.add_middleware(
 #     CORSMiddleware,
 #     allow_origins=[
-#         "http://localhost:5173",       # your local dev frontend
-#         "http://localhost:5176",       # another dev port
-#         "https://agriadvisor.vercel.app",  # your Vercel live site
+#         "http://localhost:5173",
+#         "http://localhost:5176",
+
+#         # Vercel frontend (preview + production)
+#         "https://agri-advisor-git-main-sandeeps-projects-d25a4473.vercel.app",
+#         "https://agri-advisor-aqinf1dq3-sandeeps-projects-d25a4473.vercel.app",
+#         "https://agriadvisor.vercel.app",
+
+#         # Render backend URL must be allowed
+#         "https://agri-advisor-7d7c.onrender.com",
+
+#         "*",   # keep fallback
 #     ],
 #     allow_credentials=True,
 #     allow_methods=["*"],
 #     allow_headers=["*"],
 # )
+
+
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        # Local development URLs
+        "http://localhost:5173",
+        "http://localhost:5176",
+        "http://localhost:5177",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:5176",
+        "http://127.0.0.1:5177",
+        
+        # Vercel deployment URLs
+        "https://agri-advisor-two.vercel.app",
+        "https://agri-advisor-git-main-sandeeps-projects-d25a4473.vercel.app",
+        "https://agri-advisor-neo06se1t-sandeeps-projects-d25a4473.vercel.app",
+        
+        # Render backend URL
+        "https://agri-advisor-7d7c.onrender.com",
+        
+        # Allow all during development (remove in production)
+        "*"
+    ],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_headers=["Content-Type", "Authorization", "Origin", 
+                  "Accept", "X-Requested-With", "Access-Control-Request-Method",
+                  "Access-Control-Request-Headers"],
+    expose_headers=["*"],
+    max_age=3600
+)
 
 # --- MongoDB setup ---
 # MONGO_URI = os.environ.get("MONGO_URI", "mongodb://127.0.0.1:27017")
@@ -163,9 +182,23 @@ MONGO_DB = os.environ.get("MONGO_DB", "fertilizer_project")
 
 if MongoClient is not None:
     try:
-        print("🔌 Connecting to MongoDB:", MONGO_URI)
-        _mongo = MongoClient(MONGO_URI, serverSelectionTimeoutMS=3000)
-        _mongo.server_info()  # force connection test
+        print("🔌 Attempting MongoDB connection...")
+        _mongo = MongoClient(
+            MONGO_URI,
+            serverSelectionTimeoutMS=5000,
+            connectTimeoutMS=5000,
+            socketTimeoutMS=5000,
+            retryWrites=True,
+            retryReads=True,
+            w='majority'
+        )
+        
+        # Test connection
+        print("🔍 Testing MongoDB connection...")
+        _mongo.admin.command('ping')
+        
+        # Initialize database and collections
+        print("📁 Initializing database and collections...")
         db = _mongo[MONGO_DB]
         col_users = db["users"]
         col_recs = db["recommendations"]
@@ -173,9 +206,19 @@ if MongoClient is not None:
         col_techniques = db["techniques"]
         col_prices = db["prices"]
         col_contacts = db["contacts"]
-        print("✅ MongoDB connected successfully!")
+        
+        # Create indexes for better performance
+        print("📈 Creating database indexes...")
+        col_users.create_index([("email", 1)], unique=True)
+        col_articles.create_index([("publishedAt", -1)])
+        col_techniques.create_index([("category", 1)])
+        
+        print("✅ MongoDB connected and initialized successfully!")
     except Exception as e:
-        print("❌ MongoDB connection failed:", e)
+        print(f"❌ MongoDB connection failed: {str(e)}")
+        print("⚠️ MongoDB connection details:")
+        print(f"  - Database: {MONGO_DB}")
+        print(f"  - Error type: {type(e).__name__}")
         _mongo = None
         db = None
         col_users = col_recs = col_articles = col_techniques = col_prices = col_contacts = None
@@ -258,11 +301,11 @@ RECS_BY_USER: Dict[str, List[Dict[str, Any]]] = {}
 
 # --- Schemas ---
 class RegisterReq(BaseModel):
-    name: str = Field(..., min_length=2)
-    email: EmailStr
-    password: str = Field(..., min_length=6)
-    phone: Optional[str] = None
-    location: Optional[str] = None
+    name: str = Field(..., min_length=2, description="User's full name")
+    email: EmailStr = Field(..., description="User's email address")
+    password: str = Field(..., min_length=6, description="Password (minimum 6 characters)")
+    phone: Optional[str] = Field(None, description="Optional phone number")
+    location: Optional[str] = Field(None, description="Optional location")
 
 class LoginReq(BaseModel):
     email: EmailStr
@@ -323,41 +366,99 @@ def diag():
     return info
 
 @app.get("/")
-def home():
-    return {"message": "Fertilizer Recommendation API is running", "mongo": bool(_mongo)}
+async def home():
+    status = {
+        "message": "Fertilizer Recommendation API is running",
+        "timestamp": datetime.utcnow().isoformat(),
+        "mongo": {
+            "connected": bool(_mongo),
+            "database": MONGO_DB if _mongo else None
+        },
+        "collections": {
+            "users": bool(col_users),
+            "articles": bool(col_articles),
+            "techniques": bool(col_techniques),
+            "recommendations": bool(col_recs),
+            "contacts": bool(col_contacts)
+        }
+    }
+    
+    # Test MongoDB connection if connected
+    if _mongo:
+        try:
+            _mongo.admin.command('ping')
+            status["mongo"]["ping"] = "success"
+        except Exception as e:
+            status["mongo"]["ping"] = f"failed: {str(e)}"
+    
+    return status
 
 @app.post("/api/auth/register", response_model=TokenResp)
-def register(req: RegisterReq):
-    email = req.email.lower()
-    if email in USERS or (col_users is not None and col_users.find_one({"email": email})):
-        raise HTTPException(status_code=400, detail="Email already registered")
-
-    user_doc = {
-        "name": req.name,
-        "email": email,
-        "password_hash": pwd_ctx.hash(req.password),
-        "phone": req.phone,
-        "location": req.location,
-        "created_at": datetime.utcnow(),
-    }
-
-    USERS[email] = user_doc
-    stored = "memory"
-    ins_id = None
-
+async def register(req: RegisterReq):
     try:
+        print(f"👉 Registration attempt for: {req.email}")
+        
+        # Validate email format
+        email = req.email.lower()
+        
+        # Check if email already exists
+        if email in USERS:
+            print(f"❌ Email already exists in memory: {email}")
+            raise HTTPException(status_code=400, detail="Email already registered")
+        
         if col_users is not None:
-            print("👉 Attempting DB insert into 'users' collection...")
-            res = col_users.insert_one(user_doc)
-            print("✅ Insert result:", res.acknowledged, res.inserted_id)
-            if getattr(res, "acknowledged", False):
-                stored = "db"
-                ins_id = str(res.inserted_id)
+            existing_user = col_users.find_one({"email": email})
+            if existing_user:
+                print(f"❌ Email already exists in database: {email}")
+                raise HTTPException(status_code=400, detail="Email already registered")
+        
+        # Create user document
+        user_doc = {
+            "name": req.name,
+            "email": email,
+            "password_hash": pwd_ctx.hash(req.password),
+            "phone": req.phone,
+            "location": req.location,
+            "created_at": datetime.utcnow(),
+        }
+        
+        # Store in memory
+        USERS[email] = user_doc
+        stored = "memory"
+        ins_id = None
+        
+        # Store in database
+        try:
+            if col_users is not None:
+                print(f"👉 Attempting DB insert for user: {email}")
+                res = col_users.insert_one(user_doc)
+                if getattr(res, "acknowledged", False):
+                    stored = "db"
+                    ins_id = str(res.inserted_id)
+                    print(f"✅ User stored in database with ID: {ins_id}")
+        except Exception as e:
+            print(f"❌ Database insert failed: {str(e)}")
+            # Continue with memory storage only
+        
+        # Create access token
+        token = create_access_token(email)
+        print(f"✅ Registration successful for: {email}")
+        
+        return {
+            "access_token": token,
+            "token_type": "bearer",
+            "_stored": stored,
+            "_id": ins_id
+        }
+        
+    except HTTPException:
+        raise
     except Exception as e:
-        print("❌ DB insert failed:", e)
-
-    token = create_access_token(email)
-    return {"access_token": token, "token_type": "bearer", "_stored": stored, "_id": ins_id}
+        print(f"❌ Unexpected error during registration: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Registration failed. Please try again."
+        )
 
 # @app.post("/api/auth/login", response_model=TokenResp)
 # # def login(req: LoginReq):
