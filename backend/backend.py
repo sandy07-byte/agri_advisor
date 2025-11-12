@@ -458,11 +458,24 @@ async def register(req: RegisterReq):
                 print(f"❌ Email already exists in database: {email}")
                 raise HTTPException(status_code=400, detail="Email already registered")
         
+        # Validate password length (bcrypt limitation: 72 bytes)
+        pw_bytes = req.password.encode("utf-8") if isinstance(req.password, str) else bytes(req.password)
+        if len(pw_bytes) > 72:
+            print(f"❌ Password too long ({len(pw_bytes)} bytes) for user: {email}")
+            raise HTTPException(status_code=400, detail="Password is too long. Please use a password shorter than 72 bytes")
+
         # Create user document
+        try:
+            hashed_pw = pwd_ctx.hash(req.password)
+        except Exception as e:
+            print(f"❌ Password hashing failed: {type(e).__name__}: {e}")
+            print(traceback.format_exc())
+            raise HTTPException(status_code=500, detail="Server error while processing password")
+
         user_doc = {
             "name": req.name,
             "email": email,
-            "password_hash": pwd_ctx.hash(req.password),
+            "password_hash": hashed_pw,
             "phone": req.phone,
             "location": req.location,
             "created_at": datetime.utcnow(),
