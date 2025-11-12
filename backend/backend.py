@@ -177,7 +177,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_methods=["GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=[
         "Content-Type",
         "Authorization",
@@ -438,6 +438,13 @@ async def home():
             status["mongo"]["ping"] = f"failed: {str(e)}"
     
     return status
+
+
+@app.head("/")
+async def head_home():
+    # Provide an explicit HEAD handler to avoid 405 responses from some clients
+    # Return only headers (no body) with 200 OK
+    return Response(status_code=200)
 
 @app.post("/api/auth/register", response_model=TokenResp)
 async def register(req: RegisterReq):
