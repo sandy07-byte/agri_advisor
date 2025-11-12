@@ -2,6 +2,11 @@ import os
 from datetime import datetime, timedelta
 from typing import Optional, List, Dict, Any
 
+# Optional: dynamic CORS middleware to echo allowed origins when
+# running behind hosts that may strip CORS headers (helps dev & deploy)
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import Response
+
 
 import joblib
 import pandas as pd
@@ -19,10 +24,17 @@ from pydantic import BaseModel, Field, EmailStr
 try:
     from pymongo import MongoClient
     from pymongo.errors import PyMongoError
+    try:
+        from pymongo.errors import DuplicateKeyError
+    except Exception:
+        DuplicateKeyError = None
 except Exception:
     MongoClient = None
     class PyMongoError(Exception):
         ...
+    DuplicateKeyError = None
+
+import traceback
 
 try:
     import jwt
@@ -136,37 +148,70 @@ app = FastAPI(
 
 from fastapi.middleware.cors import CORSMiddleware
 
+# Build allowed origins list (can be extended via EXTRA_ALLOWED_ORIGINS env var)
+default_allowed_origins = [
+    # Local development URLs
+    "http://localhost:5173",
+    "http://localhost:5176",
+    "http://localhost:5177",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:5176",
+    "http://127.0.0.1:5177",
+
+    # Vercel deployment URLs
+    "https://agri-advisor-two.vercel.app",
+    "https://agri-advisor-git-main-sandeeps-projects-d25a4473.vercel.app",
+    "https://agri-advisor-neo06se1t-sandeeps-projects-d25a4473.vercel.app",
+
+    # Render backend URL
+    "https://agri-advisor-7d7c.onrender.com",
+]
+
+# Allow adding extra origins via environment variable (comma separated)
+extra = os.environ.get("EXTRA_ALLOWED_ORIGINS", "")
+extra_list = [x.strip() for x in extra.split(",") if x.strip()]
+
+allowed_origins = list(dict.fromkeys(default_allowed_origins + extra_list))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        # Local development URLs
-        "http://localhost:5173",
-        "http://localhost:5176",
-        "http://localhost:5177",
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:5176",
-        "http://127.0.0.1:5177",
-        
-        # Vercel deployment URLs
-        "https://agri-advisor-two.vercel.app",
-        "https://agri-advisor-git-main-sandeeps-projects-d25a4473.vercel.app",
-        "https://agri-advisor-neo06se1t-sandeeps-projects-d25a4473.vercel.app",
-        
-        # Render backend URL
-        "https://agri-advisor-7d7c.onrender.com",
-        
-        # Note: do NOT include '*' when allow_credentials=True because
-        # browsers will ignore Access-Control-Allow-Origin when credentials
-        # are used and '*' is present. Keep explicit origins below.
-        ],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allow_headers=["Content-Type", "Authorization", "Origin", 
-                  "Accept", "X-Requested-With", "Access-Control-Request-Method",
-                  "Access-Control-Request-Headers"],
+    allow_headers=[
+        "Content-Type",
+        "Authorization",
+        "Origin",
+        "Accept",
+        "X-Requested-With",
+        "Access-Control-Request-Method",
+        "Access-Control-Request-Headers",
+    ],
     expose_headers=["*"],
-    max_age=3600
+    max_age=3600,
 )
+
+
+# Dynamic echo middleware: if the request Origin is one of the allowed
+# origins, ensure the response contains Access-Control-Allow-Origin.
+class DynamicCORSEchoMiddleware(BaseHTTPMiddleware):
+    def __init__(self, app, allowed):
+        super().__init__(app)
+        self.allowed = set(allowed or [])
+
+    async def dispatch(self, request, call_next):
+        origin = request.headers.get("origin")
+        response = await call_next(request)
+        if origin and origin in self.allowed:
+            # Ensure the header is present (helps when upstream/proxy drops it)
+            response.headers["Access-Control-Allow-Origin"] = origin
+            response.headers["Vary"] = ", ".join([
+                h for h in (response.headers.get("Vary", ""), "Origin") if h
+            ])
+        return response
+
+# Register dynamic echo middleware after CORSMiddleware
+app.add_middleware(DynamicCORSEchoMiddleware, allowed=allowed_origins)
 
 # --- MongoDB setup ---
 # MONGO_URI = os.environ.get("MONGO_URI", "mongodb://127.0.0.1:27017")
@@ -376,11 +421,11 @@ async def home():
             "database": MONGO_DB if _mongo else None
         },
         "collections": {
-            "users": bool(col_users),
-            "articles": bool(col_articles),
-            "techniques": bool(col_techniques),
-            "recommendations": bool(col_recs),
-            "contacts": bool(col_contacts)
+            "users": (col_users is not None),
+            "articles": (col_articles is not None),
+            "techniques": (col_techniques is not None),
+            "recommendations": (col_recs is not None),
+            "contacts": (col_contacts is not None)
         }
     }
     
@@ -428,18 +473,42 @@ async def register(req: RegisterReq):
         stored = "memory"
         ins_id = None
         
-        # Store in database
+        # Store in database with explicit error handling
         try:
             if col_users is not None:
                 print(f"👉 Attempting DB insert for user: {email}")
-                res = col_users.insert_one(user_doc)
-                if getattr(res, "acknowledged", False):
-                    stored = "db"
-                    ins_id = str(res.inserted_id)
-                    print(f"✅ User stored in database with ID: {ins_id}")
+                try:
+                    res = col_users.insert_one(user_doc)
+                except Exception as db_e:
+                    # Handle duplicate key errors explicitly when pymongo exposes them
+                    if 'DuplicateKeyError' in globals() and DuplicateKeyError is not None and isinstance(db_e, DuplicateKeyError):
+                        print(f"❌ DuplicateKeyError: email already exists: {email}")
+                        # remove from memory cache to keep consistent with DB
+                        USERS.pop(email, None)
+                        raise HTTPException(status_code=400, detail="Email already registered")
+                    # If PyMongoError class is available, handle generically
+                    if 'PyMongoError' in globals() and isinstance(db_e, PyMongoError):
+                        print(f"❌ PyMongoError during insert: {type(db_e).__name__}: {str(db_e)}")
+                        print(traceback.format_exc())
+                        # keep memory-only storage and continue
+                    else:
+                        # Unknown DB error, log full traceback
+                        print(f"❌ Database insert failed: {type(db_e).__name__}: {str(db_e)}")
+                        print(traceback.format_exc())
+                        # keep memory-only storage and continue
+                else:
+                    if getattr(res, "acknowledged", False):
+                        stored = "db"
+                        ins_id = str(res.inserted_id)
+                        print(f"✅ User stored in database with ID: {ins_id}")
+        except HTTPException:
+            # Re-raise expected HTTP exceptions (e.g., duplicate email)
+            raise
         except Exception as e:
-            print(f"❌ Database insert failed: {str(e)}")
-            # Continue with memory storage only
+            # Catch-all to ensure registration doesn't crash the server
+            print(f"❌ Unexpected error while storing user in DB: {type(e).__name__}: {str(e)}")
+            print(traceback.format_exc())
+            # Continue with memory-only storage
         
         # Create access token
         token = create_access_token(email)
