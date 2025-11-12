@@ -155,9 +155,10 @@ app.add_middleware(
         # Render backend URL
         "https://agri-advisor-7d7c.onrender.com",
         
-        # Allow all during development (remove in production)
-        "*"
-    ],
+        # Note: do NOT include '*' when allow_credentials=True because
+        # browsers will ignore Access-Control-Allow-Origin when credentials
+        # are used and '*' is present. Keep explicit origins below.
+        ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["Content-Type", "Authorization", "Origin", 
