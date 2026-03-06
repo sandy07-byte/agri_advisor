@@ -1,0 +1,28 @@
+# fastapi==0.111.0
+# uvicorn[standard]==0.30.0
+# pydantic==2.8.2
+# scikit-learn==1.3.2
+# pandas==2.1.4
+# numpy==1.26.4
+# joblib==1.3.2
+# PyJWT==2.8.0
+# passlib[bcrypt]==1.7.4
+# pymongo==4.8.0
+# gdown 
+fastapi
+uvicorn
+pymongo
+dnspython
+certifi
+python-jose
+passlib[bcrypt]
+python-multipart
+pillow
+gdown
+numpy
+pandas
+scikit-learn
+matplotlib
+pydantic[email]
+python-dotenv
+requests
