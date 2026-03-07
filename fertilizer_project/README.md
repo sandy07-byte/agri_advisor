@@ -78,3 +78,6 @@ npm run dev
 
 Notes:
 - If `fertilizer_model.pkl` is missing, the backend will attempt to train it automatically using `ml_model/model_train.py` and `data_core.csv`.
+
+---
+*Last CI/CD test: March 7, 2026*
