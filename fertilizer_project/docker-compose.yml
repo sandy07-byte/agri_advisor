@@ -1,0 +1,63 @@
+version: "3.8"
+
+services:
+  # FastAPI Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: agriadvisor-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/agriadvisor
+      - JWT_SECRET=${JWT_SECRET:-dev-secret-key-change-in-production}
+      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY:-}
+    depends_on:
+      mongo:
+        condition: service_healthy
+    volumes:
+      - ./backend/logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - agriadvisor-network
+
+  # MongoDB Database
+  mongo:
+    image: mongo:7.0
+    container_name: agriadvisor-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - agriadvisor-network
+
+  # Frontend (Vite/React)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: agriadvisor-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - agriadvisor-network
+
+volumes:
+  mongo-data:
+    driver: local
+
+networks:
+  agriadvisor-network:
+    driver: bridge
