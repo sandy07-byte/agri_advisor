@@ -565,33 +565,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # Build allowed origins list (can be extended via EXTRA_ALLOWED_ORIGINS env var)
 default_allowed_origins = [
-    # Local development URLs
+    # Local development
     "http://localhost:5173",
-    "http://localhost:5174",
-    "http://localhost:5175",
-    "http://localhost:5176",
-    "http://localhost:5177",
-    "http://localhost:5178",
-    "http://localhost:5179",
-    "http://127.0.0.1:5173",
-    "http://127.0.0.1:5174",
-    "http://127.0.0.1:5175",
-    "http://127.0.0.1:5176",
-    "http://127.0.0.1:5177",
-    "http://127.0.0.1:5178",
-    "http://127.0.0.1:5179",
+    "http://localhost:3000",
     
-    # Generic localhost without port just in case
-    "http://localhost",
-
-    # Vercel deployment URLs
-
-    "https://agri-advisor-two.vercel.app",
-    "https://agri-advisor-git-main-sandeeps-projects-d25a4473.vercel.app",
-    "https://agri-advisor-neo06se1t-sandeeps-projects-d25a4473.vercel.app",
-
-    # Render backend URL
-    "https://agri-advisor-7d7c.onrender.com",
+    # Production
+    "http://65.2.62.142:3000",
 ]
 
 # Allow adding extra origins via environment variable (comma separated)
