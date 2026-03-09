@@ -12,7 +12,7 @@ services:
     environment:
       - MONGO_URI=mongodb://mongo:27017/agriadvisor
       - JWT_SECRET=${JWT_SECRET:-dev-secret-key-change-in-production}
-      - WEATHER_API_KEY=${WEATHER_API_KEY:-}
+      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY:-}
       - MANDI_API_KEY=${MANDI_API_KEY:-}
     depends_on:
       mongo:

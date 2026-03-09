@@ -194,7 +194,7 @@ class _PwdHashing:
 pwd_ctx = _PwdHashing()
 
 # --- Weather API Configuration ---
-WEATHER_API_KEY = os.getenv("WEATHER_API_KEY", "")
+WEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY", "")
 WEATHER_API_URL = "https://api.openweathermap.org/data/2.5/weather"
 
 def get_weather(city: str) -> Optional[Dict[str, Any]]:
